@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Database Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+        // Replace with your actual Supabase project URL and anon key
+        const SUPABASE_URL = 'https://hzvrkfmanpyervfsybnb.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6dnJrZm1hbnB5ZXJ2ZnN5Ym5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4MjMxNjMsImV4cCI6MjA4NTM5OTE2M30.9lb-PzDyXTmWWK1TiI3Gdmfpf3BQodhodgce2-lFZNo';
+
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function fetchData() {
+            // Change 'user_info' to your actual table name
+            let { data, error } = await client
+                .from('user_info')
+                .select('*');
+
+            if (error) {
+                console.error("Error:", error);
+                document.getElementById("test").innerText = "Error: " + error.message;
+            } else {
+                console.log("Data received:", data);
+                console.log("Data length:", data ? data.length : "null");
+                
+                if (data && data.length > 0) {
+                    console.log("First row:", data[0]);
+                    console.log("All columns:", Object.keys(data[0]));
+                    // Change 'monke_colum' to the column name you want to display
+                    document.getElementById("test").innerText = data[0].monke_colum;
+                } else {
+                    document.getElementById("test").innerHTML = "No data found.<br>Check console (F12) for details.<br>Table: user_info<br>Try checking Supabase to verify table has data.";
+                }
+            }
+        }
+
+        window.onload = fetchData;
+    </script>
+</head>
+<body>
+    <p id="test">Loading...</p>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 300px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        #message {
+            display: none;
+        }
+    </style>
+    <script>
+        const SUPABASE_URL = 'https://hzvrkfmanpyervfsybnb.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6dnJrZm1hbnB5ZXJ2ZnN5Ym5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4MjMxNjMsImV4cCI6MjA4NTM5OTE2M30.9lb-PzDyXTmWWK1TiI3Gdmfpf3BQodhodgce2-lFZNo';
+
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+
+            // Clear previous message
+            messageDiv.style.display = 'none';
+
+            // Validate inputs
+            if (!username || !password) {
+                showMessage('Please enter both username and password', 'error');
+                return;
+            }
+
+            try {
+                // CHANGE 'user_info' to your actual table name
+                // CHANGE 'username' to your username column name
+                let { data, error } = await client
+                    .from('user_info')
+                    .select('*')
+                    .eq('username', username);
+
+                if (error) {
+                    showMessage('Error: ' + error.message, 'error');
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    // CHANGE 'password' to your actual password column name
+                    const user = data[0];
+                    if (user.password === password) {
+                        showMessage('Login successful! Welcome ' + username, 'success');
+                        // You can redirect to another page here:
+                        // window.location.href = 'dashboard.html';
+                    } else {
+                        showMessage('Invalid password', 'error');
+                    }
+                } else {
+                    showMessage('User not found', 'error');
+                }
+            } catch (err) {
+                console.error('Login error:', err);
+                showMessage('Login failed. Check console for details.', 'error');
+            }
+        }
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                login();
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Login</h1>
+        
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" placeholder="Enter your username">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter your password">
+        </div>
+
+        <button onclick="login()">Login</button>
+
+        <div id="message"></div>
+    </div>
+</body>
+</html>
